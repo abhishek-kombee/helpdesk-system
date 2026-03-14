@@ -54,7 +54,7 @@ This starts **8 services**: PostgreSQL, Django backend, Next.js frontend, Promet
 | Customer | customer1@helpdesk.com | Customer123!@# |
 | Customer | customer2@helpdesk.com | Customer123!@# |
 
-## 📊 Grafana Dashboards
+## 📊 Grafana Dashboards (Observability)
 
 Four pre-provisioned dashboards available at http://localhost:3001:
 
@@ -62,6 +62,15 @@ Four pre-provisioned dashboards available at http://localhost:3001:
 2. **Database Performance** — Query duration percentiles, slow queries, by operation
 3. **Logs Explorer** — Error logs by severity, login failures, filter by trace_id
 4. **Trace Explorer** — Tempo trace search, POST /api/tickets/ traces, trace view
+
+### Screenshots
+
+| Description | Screenshot |
+|-------------|------------|
+| **HelpDesk Pro app** — Frontend dashboard with live metrics (request rate, error rate, P95 latency) and support tickets table | ![HelpDesk Pro app dashboard](frontend/public/helpdesk_pro_app_dashboard.png) |
+| **Grafana — Helpdesk dashboards overview** — List of the four observability dashboards (Application Health, Database Performance, Logs Explorer, Trace Explorer) in the Helpdesk folder | ![Grafana Helpdesk dashboards](frontend/public/grafana_helpdesk_dashboards_overview.png) |
+| **Grafana — Application Health** — Request rate, error rate %, P95 latency gauge, slowest endpoints table, active users | ![Application Health dashboard](frontend/public/grafana_application_health_dashboard.png) |
+| **Grafana — Database Performance** — Query duration over time (P50/P95/P99), slow queries count, slow query rate, duration by operation | ![Database Performance dashboard](frontend/public/grafana_database_performance_dashboard.png) |
 
 ## 🔧 Anomaly Injection
 
