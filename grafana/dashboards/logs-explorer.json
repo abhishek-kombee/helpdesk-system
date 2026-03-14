@@ -8,10 +8,31 @@
   "liveNow": true,
   "panels": [
     {
+      "title": "All request logs (every request is logged)",
+      "type": "logs",
+      "description": "Shows all logs from the backend. If this has data, logs are flowing; other panels filter to errors only.",
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 0 },
+      "datasource": { "type": "loki", "uid": "${logs_datasource}" },
+      "targets": [
+        {
+          "expr": "{job=\"helpdesk-backend\"}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "sortOrder": "Descending",
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": true,
+        "wrapLogMessage": true
+      }
+    },
+    {
       "title": "Error Logs by Severity",
       "type": "barchart",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
-      "datasource": { "type": "loki", "uid": "" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "datasource": { "type": "loki", "uid": "${logs_datasource}" },
       "targets": [
         {
           "expr": "sum by (level) (count_over_time({job=\"helpdesk-backend\"} | json | level =~ \"ERROR|WARNING|CRITICAL\" [5m]))",
@@ -23,8 +44,8 @@
     {
       "title": "Login Failure Events",
       "type": "logs",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
-      "datasource": { "type": "loki", "uid": "" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "datasource": { "type": "loki", "uid": "${logs_datasource}" },
       "targets": [
         {
           "expr": "{job=\"helpdesk-backend\"} |= \"login_failed\"",
@@ -43,8 +64,8 @@
     {
       "title": "All Error Logs",
       "type": "logs",
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 8 },
-      "datasource": { "type": "loki", "uid": "" },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 14 },
+      "datasource": { "type": "loki", "uid": "${logs_datasource}" },
       "targets": [
         {
           "expr": "{job=\"helpdesk-backend\"} | json | level = \"ERROR\"",
@@ -63,8 +84,8 @@
     {
       "title": "Logs by Trace ID",
       "type": "logs",
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 18 },
-      "datasource": { "type": "loki", "uid": "" },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 24 },
+      "datasource": { "type": "loki", "uid": "${logs_datasource}" },
       "targets": [
         {
           "expr": "{job=\"helpdesk-backend\"} |= \"$trace_id\"",
@@ -87,6 +108,21 @@
   "tags": ["helpdesk", "logs"],
   "templating": {
     "list": [
+      {
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "label": "Logs datasource",
+        "multi": false,
+        "name": "logs_datasource",
+        "options": [],
+        "query": "loki",
+        "queryValue": "",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
       {
         "current": { "selected": false, "text": "", "value": "" },
         "description": "Filter logs by trace ID",

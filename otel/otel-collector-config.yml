@@ -16,6 +16,10 @@ processors:
       - key: service.name
         value: helpdesk-backend
         action: upsert
+      # Loki uses "job" for log queries; Grafana dashboards filter with job="helpdesk-backend"
+      - key: job
+        value: helpdesk-backend
+        action: upsert
 
 exporters:
   otlp/tempo:
@@ -25,9 +29,6 @@ exporters:
 
   loki:
     endpoint: http://loki:3100/loki/api/v1/push
-    default_labels_enabled:
-      exporter: true
-      job: true
 
   debug:
     verbosity: detailed

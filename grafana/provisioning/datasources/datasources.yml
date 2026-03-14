@@ -27,11 +27,5 @@ datasources:
     url: http://tempo:3200
     editable: true
     jsonData:
-      tracesToLogs:
-        datasourceUid: loki
-        filterByTraceID: true
-        filterBySpanID: false
       nodeGraph:
         enabled: true
-      lokiSearch:
-        datasourceUid: loki

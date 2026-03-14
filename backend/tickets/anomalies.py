@@ -27,9 +27,9 @@ def should_inject_errors():
 
 
 def inject_artificial_delay():
-    """Add a random delay between 0.5 and 2.0 seconds."""
+    """Add a huge random delay between 3.0 and 5.0 seconds."""
     if should_inject_delay():
-        delay = random.uniform(0.5, 2.0)
+        delay = random.uniform(3.0, 5.0)
         logger.warning("Injecting artificial delay", extra={
             'event': 'anomaly_injected',
             'anomaly_type': 'delay',
@@ -39,7 +39,7 @@ def inject_artificial_delay():
 
 
 def inject_slow_query():
-    """Return a raw SQL query with no index optimization."""
+    """Return an incredibly slow unoptimized query using a CROSS JOIN to force a massive delay."""
     if should_inject_slow_query():
         from django.db import connection
         logger.warning("Injecting slow query", extra={
@@ -47,21 +47,23 @@ def inject_slow_query():
             'anomaly_type': 'slow_query',
         })
         with connection.cursor() as cursor:
-            # Deliberately unoptimized query - full table scan with string comparison
+            # Deliberately terrible query - a cross join that explodes row count
             cursor.execute("""
-                SELECT t.*, u.username 
-                FROM tickets t 
-                LEFT JOIN users u ON t.created_by_id = u.id 
-                WHERE CAST(t.id AS TEXT) LIKE '%%' 
-                ORDER BY t.description, t.title, t.created_at
+                SELECT t1.id, t2.id, u.username 
+                FROM tickets t1 
+                CROSS JOIN tickets t2 
+                LEFT JOIN users u ON t1.created_by_id = u.id 
+                WHERE CAST(t1.id AS TEXT) LIKE '%%' OR CAST(t2.id AS TEXT) LIKE '%%'
+                ORDER BY t1.description DESC, t2.title ASC
+                LIMIT 100
             """)
             return cursor.fetchall()
     return None
 
 
 def inject_random_error(request):
-    """20% chance of returning a 500 error."""
-    if should_inject_errors() and random.random() < 0.2:
+    """50% chance of returning a 500 error."""
+    if should_inject_errors() and random.random() < 0.5:
         logger.error("Injecting random 500 error", extra={
             'event': 'anomaly_injected',
             'anomaly_type': 'random_500',

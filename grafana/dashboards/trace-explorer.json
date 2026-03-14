@@ -9,7 +9,8 @@
   "panels": [
     {
       "title": "Trace Search",
-      "type": "tempo-search",
+      "type": "table",
+      "description": "Traces for helpdesk-backend (table replaces tempo-search panel for compatibility)",
       "gridPos": { "h": 10, "w": 24, "x": 0, "y": 0 },
       "datasource": { "type": "tempo", "uid": "tempo" },
       "targets": [

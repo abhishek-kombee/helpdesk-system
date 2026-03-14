@@ -10,7 +10,7 @@ const ticketCreateDuration = new Trend('ticket_create_duration');
 const ticketDetailDuration = new Trend('ticket_detail_duration');
 
 // Test configuration
-const BASE_URL = __ENV.BASE_URL || 'http://localhost:8000';
+const BASE_URL = __ENV.BASE_URL || 'http://backend:8000';
 
 export const options = {
   stages: [

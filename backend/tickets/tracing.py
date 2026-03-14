@@ -41,7 +41,22 @@ def init_tracing():
         # Auto-instrument psycopg2
         Psycopg2Instrumentor().instrument()
 
-        logger.info(f"OpenTelemetry tracing initialized, exporting to {otel_endpoint}")
+        # Route python application logs over OTLP
+        from opentelemetry._logs import set_logger_provider
+        from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
+        from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
+        from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
+
+        logger_provider = LoggerProvider(resource=resource)
+        set_logger_provider(logger_provider)
+        log_exporter = OTLPLogExporter(endpoint=otel_endpoint, insecure=True)
+        logger_provider.add_log_record_processor(BatchLogRecordProcessor(log_exporter))
+        
+        # Attach OTLP handler specifically to our 'tickets' app logger
+        otlp_handler = LoggingHandler(level=logging.INFO, logger_provider=logger_provider)
+        logging.getLogger('tickets').addHandler(otlp_handler)
+
+        logger.info(f"OpenTelemetry tracing & logging initialized, exporting to {otel_endpoint}")
 
     except Exception as e:
         logger.warning(f"Failed to initialize OpenTelemetry: {e}")

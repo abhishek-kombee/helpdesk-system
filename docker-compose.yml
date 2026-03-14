@@ -32,9 +32,15 @@ services:
       - "8000:8000"
     env_file:
       - .env
+    environment:
+      # Enable traces and logs to OTEL Collector (Trace Explorer, Logs Explorer)
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_SERVICE_NAME=helpdesk-backend
     depends_on:
       db:
         condition: service_healthy
+      otel-collector:
+        condition: service_started
     networks:
       - helpdesk-net
 
@@ -71,7 +77,7 @@ services:
       - helpdesk-net
 
   tempo:
-    image: grafana/tempo:latest
+    image: grafana/tempo:2.2.2
     volumes:
       - ./tempo/tempo.yaml:/etc/tempo/tempo.yaml
       - tempo_data:/tmp/tempo
@@ -83,7 +89,7 @@ services:
       - helpdesk-net
 
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
+    image: otel/opentelemetry-collector-contrib:0.90.0
     volumes:
       - ./otel/otel-collector-config.yml:/etc/otelcol-contrib/config.yaml
     ports:

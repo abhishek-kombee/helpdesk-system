@@ -13,19 +13,15 @@ ingester:
 
 compactor:
   compaction:
-    block_retention: 48h
+    compaction_window: 1h
+    max_block_bytes: 100000000
+    block_retention: 1h
+    compacted_block_retention: 1h
 
 storage:
   trace:
-    backend: local
+    backend: local                     
     wal:
-      path: /tmp/tempo/wal
+      path: /tmp/tempo/wal             
     local:
       path: /tmp/tempo/blocks
-
-metrics_generator:
-  registry:
-    external_labels:
-      source: tempo
-  storage:
-    path: /tmp/tempo/generator/wal
