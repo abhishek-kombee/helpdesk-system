@@ -1,0 +1,62 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "title": "Trace Search",
+      "type": "tempo-search",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 0 },
+      "datasource": { "type": "tempo", "uid": "tempo" },
+      "targets": [
+        {
+          "queryType": "nativeSearch",
+          "serviceName": "helpdesk-backend",
+          "limit": 20,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "title": "POST /api/tickets/ Traces",
+      "type": "table",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 10 },
+      "datasource": { "type": "tempo", "uid": "tempo" },
+      "targets": [
+        {
+          "queryType": "nativeSearch",
+          "serviceName": "helpdesk-backend",
+          "spanName": "POST /api/tickets/",
+          "limit": 20,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "title": "Trace View",
+      "type": "traces",
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 20 },
+      "datasource": { "type": "tempo", "uid": "tempo" },
+      "targets": [
+        {
+          "queryType": "traceql",
+          "query": "{resource.service.name=\"helpdesk-backend\"}",
+          "limit": 20,
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["helpdesk", "traces"],
+  "templating": { "list": [] },
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "Trace Explorer",
+  "uid": "trace-explorer"
+}
