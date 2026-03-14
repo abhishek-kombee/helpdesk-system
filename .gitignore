@@ -1,0 +1,48 @@
+# Environment
+.env
+*.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+db.sqlite3
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Node
+node_modules/
+.next/
+out/
+
+# Docker
+docker-compose.override.yml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Volumes / data
+postgres_data/
+prometheus_data/
+loki_data/
+tempo_data/
+grafana_data/
+
+# Logs
+*.log
+
+# Coverage
+htmlcov/
+.coverage
+coverage/

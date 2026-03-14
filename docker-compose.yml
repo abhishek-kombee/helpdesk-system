@@ -1,0 +1,125 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - helpdesk-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py seed_users --noinput || true &&
+             gunicorn helpdesk.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120"
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - helpdesk-net
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    depends_on:
+      - backend
+    networks:
+      - helpdesk-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - helpdesk-net
+
+  loki:
+    image: grafana/loki:2.9.0
+    volumes:
+      - ./loki/loki-config.yaml:/etc/loki/local-config.yaml
+      - loki_data:/loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - helpdesk-net
+
+  tempo:
+    image: grafana/tempo:latest
+    volumes:
+      - ./tempo/tempo.yaml:/etc/tempo/tempo.yaml
+      - tempo_data:/tmp/tempo
+    ports:
+      - "4317:4317"
+      - "3200:3200"
+    command: ["-config.file=/etc/tempo/tempo.yaml"]
+    networks:
+      - helpdesk-net
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    volumes:
+      - ./otel/otel-collector-config.yml:/etc/otelcol-contrib/config.yaml
+    ports:
+      - "4318:4318"
+      - "4319:4317"
+    depends_on:
+      - tempo
+      - loki
+    networks:
+      - helpdesk-net
+
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
+    networks:
+      - helpdesk-net
+
+volumes:
+  postgres_data:
+  prometheus_data:
+  loki_data:
+  tempo_data:
+  grafana_data:
+
+networks:
+  helpdesk-net:
+    driver: bridge
